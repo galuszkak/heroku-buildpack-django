@@ -8,18 +8,22 @@ NAME=$($BIN_DIR/detect $BUILD_DIR) || exit 1
 cat <<EOF
 ---
 config_vars:
-  PATH: bin:node_modules/.bin:/usr/local/bin:/usr/bin:/bin
+  PATH: bin:node_modules/.bin:/app/.heroku/venv/bin:/bin:/usr/local/bin:/usr/bin
   PYTHONUNBUFFERED: true
-  LIBRARY_PATH: .heroku/vendor/lib
-  LD_LIBRARY_PATH: .heroku/vendor/lib
+  LIBRARY_PATH: /app/.heroku/vendor/lib
+  LD_LIBRARY_PATH: /app/.heroku/vendor/lib
   LANG: en_US.UTF-8
+  PYTHONHASHSEED: random
+  PYTHONHOME: /app/.heroku/venv/
+  PYTHONPATH: /app/
 EOF
 
 
 [ "$NAME" = "Python/Django" ] || exit 0
 
-SETTINGS_FILE=$(cd $BUILD_DIR && ls **/settings.py | head -1)
-PROJECT=$(dirname $SETTINGS_FILE)
+MANAGE_FILE=$(cd $BUILD_DIR && find . -maxdepth 3 -type f -name 'manage.py' | head -1)
+MANAGE_FILE=${MANAGE_FILE:2}
+PROJECT=$(dirname $MANAGE_FILE)
 
 cat <<EOF
 
